@@ -1,5 +1,6 @@
-import min_heap
+import min_heap2 as min_heap
 import random
+
 
 class DirectedWeightedGraph:
 
@@ -33,18 +34,18 @@ class DirectedWeightedGraph:
 
 
 def dijkstra(G, source):
-    pred = {} #Predecessor dictionary. Isn't returned, but here for your understanding
-    dist = {} #Distance dictionary
+    pred = {}  # Predecessor dictionary. Isn't returned, but here for your understanding
+    dist = {}  # Distance dictionary
     Q = min_heap.MinHeap([])
     nodes = list(G.adj.keys())
 
-    #Initialize priority queue/heap and distances
+    # Initialize priority queue/heap and distances
     for node in nodes:
         Q.insert(min_heap.Element(node, float("inf")))
         dist[node] = float("inf")
     Q.decrease_key(source, 0)
 
-    #Meat of the algorithm
+    # Meat of the algorithm
     while not Q.is_empty():
         current_element = Q.extract_min()
         current_node = current_element.value
@@ -58,16 +59,16 @@ def dijkstra(G, source):
 
 
 def bellman_ford(G, source):
-    pred = {} #Predecessor dictionary. Isn't returned, but here for your understanding
-    dist = {} #Distance dictionary
+    pred = {}  # Predecessor dictionary. Isn't returned, but here for your understanding
+    dist = {}  # Distance dictionary
     nodes = list(G.adj.keys())
 
-    #Initialize distances
+    # Initialize distances
     for node in nodes:
         dist[node] = float("inf")
     dist[source] = 0
 
-    #Meat of the algorithm
+    # Meat of the algorithm
     for _ in range(G.number_of_nodes()):
         for node in nodes:
             for neighbour in G.adj[node]:
@@ -83,27 +84,29 @@ def total_dist(dist):
         total += dist[key]
     return total
 
-def create_random_complete_graph(n,upper):
+
+def create_random_complete_graph(n, upper):
     G = DirectedWeightedGraph()
     for i in range(n):
         G.add_node(i)
     for i in range(n):
         for j in range(n):
             if i != j:
-                G.add_edge(i,j,random.randint(1,upper))
+                G.add_edge(i, j, random.randint(1, upper))
     return G
 
 
-#Assumes G represents its nodes as integers 0,1,...,(n-1)
+# Assumes G represents its nodes as integers 0,1,...,(n-1)
 def mystery(G):
     n = G.number_of_nodes()
     d = init_d(G)
     for k in range(n):
         for i in range(n):
             for j in range(n):
-                if d[i][j] > d[i][k] + d[k][j]: 
+                if d[i][j] > d[i][k] + d[k][j]:
                     d[i][j] = d[i][k] + d[k][j]
     return d
+
 
 def init_d(G):
     n = G.number_of_nodes()
@@ -114,3 +117,48 @@ def init_d(G):
                 d[i][j] = G.w(i, j)
         d[i][i] = 0
     return d
+
+
+# Dijkstra's Approximation
+def dijkstra_approx(G, source, k):
+    pred = {}  # Predecessor dictionary
+    dist = {}  # Distance dictionary
+    Q = min_heap.MinHeap([])
+    nodes = list(G.adj.keys())
+
+    # Initialize priority queue/heap and distances
+    for node in nodes:
+        Q.insert(min_heap.Element(node, float("inf")))
+        dist[node] = float("inf")
+    Q.decrease_key(source, 0)
+
+    while not Q.is_empty():
+        current_element = Q.extract_min()
+        current_node = current_element.value
+        dist[current_node] = current_element.key
+        for neighbour in G.adj[current_node]:
+            if dist[current_node] + G.w(current_node, neighbour) < dist[neighbour]:
+                Q.decrease_key(neighbour, dist[current_node] + G.w(current_node, neighbour))
+                dist[neighbour] = dist[current_node] + G.w(current_node, neighbour)
+                pred[neighbour] = current_node
+    return dist
+
+
+# Bellman-Ford Approximation
+def bellman_ford_approx(G, source, k):
+    pred = {}  # Predecessor dictionary
+    dist = {}  # Distance dictionary
+    nodes = list(G.adj.keys())
+
+    # Initialize distances
+    for node in nodes:
+        dist[node] = float("inf")
+    dist[source] = 0
+
+    for _ in range(k):
+        for node in nodes:
+            for neighbour in G.adj[node]:
+                if dist[neighbour] > dist[node] + G.w(node, neighbour):
+                    dist[neighbour] = dist[node] + G.w(node, neighbour)
+                    pred[neighbour] = node
+    return dist
