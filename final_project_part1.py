@@ -123,24 +123,25 @@ def init_d(G):
 def dijkstra_approx(G, source, k):
     pred = {}  # Predecessor dictionary
     dist = {}  # Distance dictionary
-    Q = min_heap.MinHeap([])
+    Q = min_heap.MinHeap([])  # Priority queue using a min heap
     nodes = list(G.adj.keys())
 
     # Initialize priority queue/heap and distances
     for node in nodes:
-        Q.insert(min_heap.Element(node, float("inf")))
-        dist[node] = float("inf")
-    Q.decrease_key(source, 0)
+        Q.insert(min_heap.Element(node, float("inf")))  # Insert each node with distance set to infinity
+        dist[node] = float("inf")  # Set initial distances to infinity
+    Q.decrease_key(source, 0)  # Set the distance of the source node to 0 in the priority queue
 
     while not Q.is_empty():
-        current_element = Q.extract_min()
+        current_element = Q.extract_min()  # Extract the node with the minimum distance from the priority queue
         current_node = current_element.value
-        dist[current_node] = current_element.key
+        dist[current_node] = current_element.key  # Update the distance of the current node
         for neighbour in G.adj[current_node]:
+            # Relaxation step: Update distance if a shorter path is found
             if dist[current_node] + G.w(current_node, neighbour) < dist[neighbour]:
                 Q.decrease_key(neighbour, dist[current_node] + G.w(current_node, neighbour))
                 dist[neighbour] = dist[current_node] + G.w(current_node, neighbour)
-                pred[neighbour] = current_node
+                pred[neighbour] = current_node  # Update predecessor for the neighbor
     return dist
 
 
@@ -152,13 +153,14 @@ def bellman_ford_approx(G, source, k):
 
     # Initialize distances
     for node in nodes:
-        dist[node] = float("inf")
-    dist[source] = 0
+        dist[node] = float("inf")  # Set initial distances to infinity
+    dist[source] = 0  # Set the distance of the source node to 0
 
     for _ in range(k):
         for node in nodes:
             for neighbour in G.adj[node]:
+                # Relaxation step: Update distance if a shorter path is found
                 if dist[neighbour] > dist[node] + G.w(node, neighbour):
                     dist[neighbour] = dist[node] + G.w(node, neighbour)
-                    pred[neighbour] = node
+                    pred[neighbour] = node  # Update predecessor for the neighbor
     return dist
