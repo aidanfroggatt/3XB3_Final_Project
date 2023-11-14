@@ -1,3 +1,6 @@
+import heapq
+import math
+import matplotlib.pyplot as plt
 import min_heap2 as min_heap
 import random
 
@@ -119,48 +122,48 @@ def init_d(G):
     return d
 
 
-# Dijkstra's Approximation
+# Dijkstra's approximation
 def dijkstra_approx(G, source, k):
-    pred = {}  # Predecessor dictionary
-    dist = {}  # Distance dictionary
-    Q = min_heap.MinHeap([])  # Priority queue using a min heap
-    nodes = list(G.adj.keys())
+    # Initialize distances and heap
+    distances = {node: float('inf') for node in G}
+    distances[source] = 0
+    heap = [(0, source)]
 
-    # Initialize priority queue/heap and distances
-    for node in nodes:
-        Q.insert(min_heap.Element(node, float("inf")))  # Insert each node with distance set to infinity
-        dist[node] = float("inf")  # Set initial distances to infinity
-    Q.decrease_key(source, 0)  # Set the distance of the source node to 0 in the priority queue
+    while heap:
+        current_distance, current_node = heapq.heappop(heap)
 
-    while not Q.is_empty():
-        current_element = Q.extract_min()  # Extract the node with the minimum distance from the priority queue
-        current_node = current_element.value
-        dist[current_node] = current_element.key  # Update the distance of the current node
-        for neighbour in G.adj[current_node]:
-            # Relaxation step: Update distance if a shorter path is found
-            if dist[current_node] + G.w(current_node, neighbour) < dist[neighbour]:
-                Q.decrease_key(neighbour, dist[current_node] + G.w(current_node, neighbour))
-                dist[neighbour] = dist[current_node] + G.w(current_node, neighbour)
-                pred[neighbour] = current_node  # Update predecessor for the neighbor
-    return dist
+        # Relaxation
+        if current_distance > distances[current_node]:
+            continue
+
+        for neighbor, weight in G[current_node]:
+            new_distance = current_distance + weight
+
+            # Relaxation limit check
+            if new_distance < distances[neighbor] and new_distance <= k:
+                distances[neighbor] = new_distance
+                heapq.heappush(heap, (new_distance, neighbor))
+
+    return distances
 
 
-# Bellman-Ford Approximation
+# Bellman-Ford approximation
 def bellman_ford_approx(G, source, k):
-    pred = {}  # Predecessor dictionary
-    dist = {}  # Distance dictionary
-    nodes = list(G.adj.keys())
-
     # Initialize distances
-    for node in nodes:
-        dist[node] = float("inf")  # Set initial distances to infinity
-    dist[source] = 0  # Set the distance of the source node to 0
+    distances = {node: float('inf') for node in G}
+    distances[source] = 0
 
+    # Relaxation loop
     for _ in range(k):
-        for node in nodes:
-            for neighbour in G.adj[node]:
-                # Relaxation step: Update distance if a shorter path is found
-                if dist[neighbour] > dist[node] + G.w(node, neighbour):
-                    dist[neighbour] = dist[node] + G.w(node, neighbour)
-                    pred[neighbour] = node  # Update predecessor for the neighbor
-    return dist
+        for node in G:
+            for neighbor, weight in G[node]:
+                new_distance = distances[node] + weight
+
+                # Relaxation limit check
+                if new_distance < distances[neighbor] and new_distance <= k:
+                    distances[neighbor] = new_distance
+
+    return distances
+
+
+# Experiment 1: Dijkstra's Approximation vs. Bellman-Ford Approximation
