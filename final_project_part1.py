@@ -1,5 +1,4 @@
-import heapq
-import math
+import time
 import matplotlib.pyplot as plt
 import min_heap2 as min_heap
 import random
@@ -122,48 +121,152 @@ def init_d(G):
     return d
 
 
-# Dijkstra's approximation
+# Approximation Algorithms
+
+# Dijkstra Approximation Algorithm
 def dijkstra_approx(G, source, k):
-    # Initialize distances and heap
-    distances = {node: float('inf') for node in G}
-    distances[source] = 0
-    heap = [(0, source)]
+    pred = {}  # Predecessor dictionary. Isn't returned, but here for your understanding
+    dist = {}  # Distance dictionary
+    Q = min_heap.MinHeap([])
+    nodes = list(G.adj.keys())
 
-    while heap:
-        current_distance, current_node = heapq.heappop(heap)
+    # Initialize priority queue/heap and distances
+    for node in nodes:
+        Q.insert(min_heap.Element(node, float("inf")))
+        dist[node] = float("inf")
+    Q.decrease_key(source, 0)
 
-        # Relaxation
-        if current_distance > distances[current_node]:
-            continue
-
-        for neighbor, weight in G[current_node]:
-            new_distance = current_distance + weight
-
-            # Relaxation limit check
-            if new_distance < distances[neighbor] and new_distance <= k:
-                distances[neighbor] = new_distance
-                heapq.heappush(heap, (new_distance, neighbor))
-
-    return distances
+    # Meat of the algorithm
+    while not Q.is_empty():
+        current_element = Q.extract_min()
+        current_node = current_element.value
+        dist[current_node] = current_element.key
+        for neighbour in G.adj[current_node]:
+            if dist[current_node] + G.w(current_node, neighbour) < dist[neighbour] and dist[current_node] < k:
+                Q.decrease_key(neighbour, dist[current_node] + G.w(current_node, neighbour))
+                dist[neighbour] = dist[current_node] + G.w(current_node, neighbour)
+                pred[neighbour] = current_node
+    return dist
 
 
-# Bellman-Ford approximation
+# Bellman-Ford Approximation Algorithm
 def bellman_ford_approx(G, source, k):
+    pred = {}  # Predecessor dictionary. Isn't returned, but here for your understanding
+    dist = {}  # Distance dictionary
+    nodes = list(G.adj.keys())
+
     # Initialize distances
-    distances = {node: float('inf') for node in G}
-    distances[source] = 0
+    for node in nodes:
+        dist[node] = float("inf")
+    dist[source] = 0
 
-    # Relaxation loop
-    for _ in range(k):
-        for node in G:
-            for neighbor, weight in G[node]:
-                new_distance = distances[node] + weight
-
-                # Relaxation limit check
-                if new_distance < distances[neighbor] and new_distance <= k:
-                    distances[neighbor] = new_distance
-
-    return distances
+    # Meat of the algorithm
+    for _ in range(min(k, G.number_of_nodes() - 1)):
+        for node in nodes:
+            for neighbour in G.adj[node]:
+                if dist[neighbour] > dist[node] + G.w(node, neighbour):
+                    dist[neighbour] = dist[node] + G.w(node, neighbour)
+                    pred[neighbour] = node
+    return dist
 
 
-# Experiment 1: Dijkstra's Approximation vs. Bellman-Ford Approximation
+# Experiment 1: Varying Graph Size
+def experiment_graph_size():
+    sizes = [50, 100, 150, 200, 250, 300, 350, 400, 450, 500]
+    execution_times_dijkstra = []
+    execution_times_bellman_ford = []
+
+    for size in sizes:
+        G = create_random_complete_graph(size, 100)
+        source = random.choice(list(G.adj.keys()))
+
+        start_dijkstra = time.time()
+        dist_dijkstra = dijkstra_approx(G, source, k=10)
+        end_dijkstra = time.time()
+        execution_times_dijkstra.append(end_dijkstra - start_dijkstra)
+
+        start_bellman_ford = time.time()
+        dist_bellman_ford = bellman_ford_approx(G, source, k=10)
+        end_bellman_ford = time.time()
+        execution_times_bellman_ford.append(end_bellman_ford - start_bellman_ford)
+
+    plt.plot(sizes, execution_times_dijkstra, label='Dijkstra Approximation')
+    plt.plot(sizes, execution_times_bellman_ford, label='Bellman-Ford Approximation')
+    plt.xlabel('Graph Size')
+    plt.ylabel('Execution Time (s)')
+    plt.legend()
+    plt.title('Experiment 1: Execution Time vs.Graph Size')
+    plt.show()
+
+
+# Experiment 2: Varying Graph Density
+def experiment_graph_density():
+    densities = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
+    execution_times_dijkstra = []
+    execution_times_bellman_ford = []
+
+    for density in densities:
+        G = create_random_complete_graph(50, 10)  # Keep size constant
+        # Adjust edges to achieve desired density
+        num_edges = int(density * G.number_of_nodes() * (G.number_of_nodes() - 1))
+        edges = random.sample([(i, j) for i in G.adj.keys() for j in G.adj.keys() if i != j], num_edges)
+        G.adj = {node: [] for node in G.adj}
+        G.weights = {}
+
+        for edge in edges:
+            G.add_edge(edge[0], edge[1], random.randint(1, 10))
+
+        source = random.choice(list(G.adj.keys()))
+
+        start_time_dijkstra = time.time()
+        dist_dijkstra = dijkstra_approx(G, source, k=10)
+        end_time_dijkstra = time.time()
+        execution_times_dijkstra.append(end_time_dijkstra - start_time_dijkstra)
+
+        start_time_belmann_ford = time.time()
+        dist_bellman_ford = bellman_ford_approx(G, source, k=10)
+        end_time_bellman_ford = time.time()
+        execution_times_bellman_ford.append(end_time_bellman_ford - start_time_belmann_ford)
+
+    plt.plot(densities, execution_times_dijkstra, label='Dijkstra Approximation')
+    plt.plot(densities, execution_times_bellman_ford, label='Bellman-Ford Approximation')
+    plt.xlabel('Graph Density')
+    plt.ylabel('Execution Time (s)')
+    plt.legend()
+    plt.title('Experiment 2: Execution Time vs. Graph Density')
+    plt.show()
+
+
+# Experiment 3: Impact of Relaxation Limit (k)
+def experiment_relaxation_limit():
+    limits = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+    execution_times_dijkstra = []
+    execution_times_bellman_ford = []
+
+    for limit in limits:
+        G = create_random_complete_graph(50, 10)
+        source = random.choice(list(G.adj.keys()))
+
+        start_time_dijkstra = time.time()
+        dist_dijkstra = dijkstra_approx(G, source, k=limit)
+        end_time_dijkstra = time.time()
+        execution_times_dijkstra.append(end_time_dijkstra - start_time_dijkstra)
+
+        start_time_belmann_ford = time.time()
+        dist_bellman_ford = bellman_ford_approx(G, source, k=limit)
+        end_time_belmann_ford = time.time()
+        execution_times_bellman_ford.append(end_time_belmann_ford - start_time_belmann_ford)
+
+    plt.plot(limits, execution_times_dijkstra, label='Dijkstra Approximation')
+    plt.plot(limits, execution_times_bellman_ford, label='Bellman-Ford Approximation')
+    plt.xlabel('Relaxation Limit (k)')
+    plt.ylabel('Execution Time (s)')
+    plt.legend()
+    plt.title('Experiment 3: Execution Time vs. K Value')
+    plt.show()
+
+
+# Run experiments
+# experiment_graph_size()
+# experiment_graph_density()
+# experiment_relaxation_limit()
