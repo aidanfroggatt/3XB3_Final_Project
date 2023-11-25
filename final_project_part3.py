@@ -86,6 +86,7 @@ def haversine_distance(lat1, lon1, lat2, lon2):
 
 
 # Test heuristic function
-print(heuristic_function("1", "2"))
+# print(heuristic_function("1", "2"))
+
 
 # TODO: Run A* and Dijkstra's algorithm on the graph, comparing the runtimes
