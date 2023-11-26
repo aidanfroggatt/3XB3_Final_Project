@@ -1,92 +1,122 @@
 import csv
+import math
+import heapq
+import time
 from final_project_part1 import DirectedWeightedGraph
-from math import radians, sin, cos, sqrt, atan2
 
 
-# TODO: Convert connections and stations csv files into a graph
-# create a function to convert the csv files into a graph
-def create_london_graph():
-    # create an empty graph
-    G = DirectedWeightedGraph()
+class LondonSubway:
+    def __init__(self):
+        # Initialize LondonSubway object with a DirectedWeightedGraph, node coordinates, and load data from CSV files
+        self.graph = DirectedWeightedGraph()
+        self.node_coordinates = {}
+        self.load_data()
 
-    # create list of values to skip adding to the graph
-    skip = ["station1", "station2", "weight", "id"]
+    def load_data(self):
+        # Load station coordinates from 'london_stations.csv'
+        with open('london_stations.csv', 'r') as file:
+            reader = csv.reader(file)
+            next(reader)  # Skip header
+            for row in reader:
+                node_id, latitude, longitude = int(row[0]), float(row[1]), float(row[2])
+                self.node_coordinates[node_id] = (latitude, longitude)
+                self.graph.add_node(node_id)
 
-    # open london_stations.csv and iterate over all rows
-    with open("london_stations.csv") as f:
-        reader = csv.reader(f)
-        for row in reader:
-            if row[0] not in skip:
-                # add the station to the graph
-                G.add_node(row[0])
-    # open london_connections.csv and iterate over all rows
-    with open("london_connections.csv") as f:
-        reader = csv.reader(f)
-        for row in reader:
-            if row[0] not in skip and row[1] not in skip:
-                # temp weight
-                weight = 1
-                # add the connection to the graph
-                G.add_edge(row[0], row[1], weight)
+        # Load connections and weights from 'london_connections.csv'
+        with open('london_connections.csv', 'r') as file:
+            reader = csv.reader(file)
+            next(reader)  # Skip header
+            for row in reader:
+                node1, node2, _, time = int(row[0]), int(row[1]), int(row[2]), float(row[3])
+                distance = self.calculate_distance(node1, node2)
+                self.graph.add_edge(node1, node2, time)  # Use time as weight
+                self.graph.add_edge(node2, node1, time)  # Assuming bidirectional connections
 
-    # return the graph
-    return G
+    def calculate_distance(self, node1, node2):
+        # Calculate distance between two nodes using Haversine formula
+        lat1, lon1 = self.node_coordinates[node1]
+        lat2, lon2 = self.node_coordinates[node2]
+        R = 6371  # Radius of Earth in kilometers
+        dlat = math.radians(lat2 - lat1)
+        dlon = math.radians(lon2 - lon1)
+        a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2) ** 2
+        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+        distance = R * c
+        return distance
+
+    def heuristic(self, node, goal):
+        # Calculate Euclidean distance as the heuristic (straight-line distance) from the current node to the goal
+        lat1, lon1 = self.node_coordinates[node]
+        lat2, lon2 = self.node_coordinates[goal]
+        return self.calculate_distance(node, goal)
+
+    def dijkstra(self, start, goal):
+        # Dijkstra's algorithm to find the shortest path from start to goal
+        visited = set()
+        distances = {node: float('inf') for node in self.graph.adj}
+        distances[start] = 0
+        priority_queue = [(0, start)]
+
+        while priority_queue:
+            current_distance, current_node = heapq.heappop(priority_queue)
+
+            if current_node in visited:
+                continue
+
+            visited.add(current_node)
+
+            for neighbor in self.graph.adj[current_node]:
+                weight = self.graph.w(current_node, neighbor)
+                distance = distances[current_node] + weight
+
+                if distance < distances[neighbor]:
+                    distances[neighbor] = distance
+                    heapq.heappush(priority_queue, (distance, neighbor))
+
+        return distances[goal]
+
+    def a_star(self, start, goal):
+        # A* algorithm to find the shortest path from start to goal using both actual distance and heuristic
+        visited = set()
+        distances = {node: float('inf') for node in self.graph.adj}
+        distances[start] = 0
+        priority_queue = [(0 + self.heuristic(start, goal), 0, start)]
+
+        while priority_queue:
+            _, current_distance, current_node = heapq.heappop(priority_queue)
+
+            if current_node in visited:
+                continue
+
+            visited.add(current_node)
+
+            if current_node == goal:
+                return current_distance
+
+            for neighbor in self.graph.adj[current_node]:
+                weight = self.graph.w(current_node, neighbor)
+                distance = distances[current_node] + weight
+
+                if distance < distances[neighbor]:
+                    distances[neighbor] = distance
+                    priority_queue.append((distance + self.heuristic(neighbor, goal), distance, neighbor))
+                    heapq.heapify(priority_queue)
+
+        return float('inf')  # Goal not reachable
 
 
-# Test graph creation
-# print(create_london_graph().adj)
+def experiment_suite_2():
+    # Example usage of LondonSubway class
+    london_subway = LondonSubway()
+    start_node = 1  # Replace with the desired start node
+    goal_node = 97  # Replace with the desired goal node
 
+    # Measure time taken for Dijkstra's algorithm
+    dijkstra_time = time.time()
+    london_subway.dijkstra(start_node, goal_node)
+    print(f"Dijkstra time: {time.time() - dijkstra_time}")
 
-# TODO: Create a heuristic function for A* algorithm
-# create a heuristic function for A* algorithm
-def heuristic_function(station1, station2):
-    # temp distance
-    distance = float("inf")
-
-    # Get longitude and latitude of the stations from london_stations.csv
-    long_lat1 = station_long_lat(station1)
-    long_lat2 = station_long_lat(station2)
-
-    # Calculate the distance between the two stations
-    distance = haversine_distance(float(long_lat1[0]), float(long_lat1[1]), float(long_lat2[0]), float(long_lat2[1]))
-
-    return distance
-
-
-# Helper function for the heuristic function
-# Gathers the longitude and latitude of a station
-def station_long_lat(station):
-    # Get longitude and latitude of station from london_stations.csv
-    for row in csv.reader(open("london_stations.csv")):
-        if row[0] == station:
-            station_latitude = row[1]
-            station_longitude = row[2]
-    return station_latitude, station_longitude
-
-
-# Helper function for the heuristic function
-# Calculates the distance between two stations
-def haversine_distance(lat1, lon1, lat2, lon2):
-    # Convert latitude and longitude from degrees to radians
-    lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
-
-    # Haversine formula
-    dlat = lat2 - lat1
-    dlon = lon2 - lon1
-    a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
-    c = 2 * atan2(sqrt(a), sqrt(1 - a))
-
-    # Radius of the Earth in kilometers (you can change it to miles by using 3958.8)
-    R = 6371.0
-
-    # Calculate the distance
-    distance = R * c
-
-    return distance
-
-
-# Test heuristic function
-# print(heuristic_function("1", "2"))
-
-
-# TODO: Run A* and Dijkstra's algorithm on the graph, comparing the runtimes
+    # Measure time taken for A* algorithm
+    a_star_time = time.time()
+    london_subway.a_star(start_node, goal_node)
+    print(f"A* time: {time.time() - a_star_time}")

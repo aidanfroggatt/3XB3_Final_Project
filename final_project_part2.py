@@ -25,7 +25,7 @@ def a_star(G, s, d, h):
 
         for neighbour in G.adj[current_node]:
             # Include the heuristic function in the distance calculation
-            new_distance = dist[current_node] + G.w(current_node, neighbour) + h[neighbour]
+            new_distance = dist[current_node] + G.w(current_node, neighbour) + h(current_node, neighbour)
             if new_distance < dist[neighbour]:
                 Q.decrease_key(neighbour, new_distance)
                 dist[neighbour] = new_distance
