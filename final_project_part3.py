@@ -113,7 +113,8 @@ def experiment_suite_2():
     start_node = 1  # Replace with the desired start node
     goal_node = 127  # Replace with the desired goal node
 
-    visualization.visualize_graph_nodes(london_subway.graph)
+    # Visualize the graph
+    visualization.visualize_graph_with_coordinates(london_subway.graph, london_subway.node_coordinates)
 
     # Measure time taken for Dijkstra's algorithm
     dijkstra_time = time.time()
