@@ -2,6 +2,8 @@ import csv
 import math
 import heapq
 import time
+
+import visualization
 from final_project_part1 import DirectedWeightedGraph
 
 
@@ -109,7 +111,9 @@ def experiment_suite_2():
     # Example usage of LondonSubway class
     london_subway = LondonSubway()
     start_node = 1  # Replace with the desired start node
-    goal_node = 97  # Replace with the desired goal node
+    goal_node = 127  # Replace with the desired goal node
+
+    visualization.visualize_graph_nodes(london_subway.graph)
 
     # Measure time taken for Dijkstra's algorithm
     dijkstra_time = time.time()
@@ -120,3 +124,7 @@ def experiment_suite_2():
     a_star_time = time.time()
     london_subway.a_star(start_node, goal_node)
     print(f"A* time: {time.time() - a_star_time}")
+
+
+if __name__ == '__main__':
+    experiment_suite_2()
