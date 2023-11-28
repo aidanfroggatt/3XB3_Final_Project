@@ -39,3 +39,9 @@ This part of the project focuses on implementing the London Underground graph an
 ### Files
 * `final_project_part3.py` - This file contains the code for the london underground graph construction, algorithms, and testing.
 * `visualization.py` - This file contains the code for the visualization of the London Underground.
+
+## Part 4
+### Description
+This part contains a refactored collection of code from the previous parts.
+### Files
+* `ShortPathFinder.py` - This file contains all the refactored code for part 4.
