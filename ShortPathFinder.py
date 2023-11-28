@@ -2,17 +2,47 @@ import heapq
 from abc import ABC, abstractmethod
 
 
+#  Create a class ShortPathFinder that implements the following methods:
+#     - calc_short_path(source: int, dest: int) -> float
+#     - set_graph(graph: Graph)
+#     - set_algorithm(algorithm: SPAlgorithm)
+
+class ShortPathFinder:
+    def __init__(self):
+        self.graph = None
+        self.algorithm = None
+
+    def set_graph(self, graph):
+        self.graph = graph
+
+    def set_algorithm(self, algorithm):
+        self.algorithm = algorithm
+
+    def calc_short_path(self, source, dest):
+        return self.algorithm.calc_sp(self.graph, source, dest)
+
+
+# Create an abstract class SPAlgorithm that implements the following methods:
+#     - calc_sp(graph: Graph, source: int, dest: int) -> float
 class SPAlgorithm(ABC):
     @abstractmethod
     def calc_sp(self, graph, source, dest):
         pass
 
 
-class dijkstra(SPAlgorithm):
+# Create an implementation of SPAlgorithm for each of the following algorithms:
+#    - Dijkstra's algorithm
+#    - Bellman-Ford algorithm
+#    - A* algorithm
+
+class Dijkstra(SPAlgorithm):
+    def __init__(self):
+        super().__init__()
+
     def calc_sp(self, graph, source, dest):
-        # Dijkstra's algorithm to find the shortest path from source to dest
+        # Dijkstra's algorithm to find the shortest path from start to goal
         visited = set()
-        distances = {node: float('inf') for node in self.graph.adj}
+        distances = {node: float('inf') for node in graph.adj}
         distances[source] = 0
         priority_queue = [(0, source)]
 
@@ -24,8 +54,8 @@ class dijkstra(SPAlgorithm):
 
             visited.add(current_node)
 
-            for neighbor in self.graph.adj[current_node]:
-                weight = self.graph.w(current_node, neighbor)
+            for neighbor in graph.adj[current_node]:
+                weight = graph.w(current_node, neighbor)
                 distance = distances[current_node] + weight
 
                 if distance < distances[neighbor]:
@@ -36,34 +66,36 @@ class dijkstra(SPAlgorithm):
 
 
 class BellmanFord(SPAlgorithm):
+    def __init__(self):
+        super().__init__()
+
     def calc_sp(self, graph, source, dest):
-        # Bellman-Ford algorithm to find the shortest path from source to dest
-        pred = {}  # Predecessor dictionary. Isn't returned, but here for your understanding
-        dist = {}  # Distance dictionary
-        nodes = list(graph.adj.keys())
+        # Bellman-Ford algorithm to find the shortest path from start to goal
+        distances = {node: float('inf') for node in graph.adj}
+        distances[source] = 0
 
-        # Initialize distances
-        for node in nodes:
-            dist[node] = float("inf")
-        dist[source] = 0
+        for i in range(graph.get_num_nodes() - 1):
+            for node in graph.adj:
+                for neighbor in graph.adj[node]:
+                    weight = graph.w(node, neighbor)
+                    distance = distances[node] + weight
 
-        # Meat of the algorithm
-        for _ in range(graph.number_of_nodes()):
-            for node in nodes:
-                for neighbour in graph.adj[node]:
-                    if dist[neighbour] > dist[node] + graph.w(node, neighbour):
-                        dist[neighbour] = dist[node] + graph.w(node, neighbour)
-                        pred[neighbour] = node
-        return dist[dest]
+                    if distance < distances[neighbor]:
+                        distances[neighbor] = distance
+
+        return distances[dest]
 
 
 class AStar(SPAlgorithm):
+    def __init__(self):
+        super().__init__()
+
     def calc_sp(self, graph, source, dest):
-        # A* algorithm to find the shortest path from source to dest using both actual distance and heuristic
+        # A* algorithm to find the shortest path from start to goal using both actual distance and heuristic
         visited = set()
-        distances = {node: float('inf') for node in self.graph.adj}
+        distances = {node: float('inf') for node in graph.adj}
         distances[source] = 0
-        priority_queue = [(0 + self.heuristic(source, dest), 0, source)]
+        priority_queue = [(0 + graph.get_heuristic(source, dest), 0, source)]
 
         while priority_queue:
             _, current_distance, current_node = heapq.heappop(priority_queue)
@@ -76,17 +108,24 @@ class AStar(SPAlgorithm):
             if current_node == dest:
                 return current_distance
 
-            for neighbor in self.graph.adj[current_node]:
-                weight = self.graph.w(current_node, neighbor)
+            for neighbor in graph.adj[current_node]:
+                weight = graph.w(current_node, neighbor)
                 distance = distances[current_node] + weight
 
                 if distance < distances[neighbor]:
                     distances[neighbor] = distance
-                    priority_queue.append((distance + self.heuristic(neighbor, dest), distance, neighbor))
+                    priority_queue.append((distance + graph.get_heuristic(neighbor, dest), distance, neighbor))
                     heapq.heapify(priority_queue)
 
         return float('inf')  # Goal not reachable
 
+
+# Create an abstract class Graph that implements the following methods:
+#   - get_adj_nodes(node: int) -> List[int]
+#   - add_node(node: int)
+#   - add_edge(start: int, end: int, w: float)
+#   - get_num_nodes() -> int
+#   - w(node: int): float
 
 class Graph(ABC):
     @abstractmethod
@@ -110,6 +149,8 @@ class Graph(ABC):
         pass
 
 
+# Create an implementation of Graph for each of the following graphs:
+#   - WeightedGraph
 class WeightedGraph(Graph):
     def __init__(self):
         self.adj = {}
@@ -135,6 +176,8 @@ class WeightedGraph(Graph):
         return float('inf')
 
 
+# Create an extension of WeightedGraph for each of the following graphs:
+#   - Heuristic
 class Heuristic(WeightedGraph):
     def __init__(self):
         super().__init__()
@@ -155,8 +198,11 @@ class Heuristic(WeightedGraph):
                 return node[1]
         return float('inf')
 
+    # TODO: Create a function heuristic() -> Dict[int, float] that sets a dictionary of heuristic values for each node
+
     def heuristic(self):
         pass
 
+    # Create a function get_heuristic() -> Dict[int, float] that returns the dictionary of heuristic values
     def get_heuristic(self):
         return self.heuristic
