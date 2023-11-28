@@ -133,3 +133,30 @@ class WeightedGraph(Graph):
             if node[0] == node2:
                 return node[1]
         return float('inf')
+
+
+class Heuristic(WeightedGraph):
+    def __init__(self):
+        super().__init__()
+
+    def add_node(self, node):
+        self.adj[node] = []
+        self.num_nodes += 1
+
+    def add_edge(self, start, end, w):
+        self.adj[start].append((end, w))
+
+    def get_num_nodes(self):
+        return self.num_nodes
+
+    def w(self, node1, node2):
+        for node in self.adj[node1]:
+            if node[0] == node2:
+                return node[1]
+        return float('inf')
+
+    def heuristic(self):
+        pass
+
+    def get_heuristic(self):
+        return self.heuristic
