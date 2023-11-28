@@ -1,4 +1,5 @@
 import heapq
+import math
 from abc import ABC, abstractmethod
 
 
@@ -179,29 +180,34 @@ class WeightedGraph(Graph):
 # Create an extension of WeightedGraph for each of the following graphs:
 #   - Heuristic
 class Heuristic(WeightedGraph):
+    # The heuristic graph is a weighted graph with an additional heuristic function
     def __init__(self):
         super().__init__()
+        self.heuristic = None
 
-    def add_node(self, node):
-        self.adj[node] = []
-        self.num_nodes += 1
+    # Create a function heuristic() -> Dict[int, float] that sets a dictionary of heuristic values for each node
+    # Heuristic values are calculated using the Haversine formula and a goal node
+    def heuristic(self, goal):
+        self.heuristic = {}
 
-    def add_edge(self, start, end, w):
-        self.adj[start].append((end, w))
+        # create a nested function to calculate the distance between two nodes based on longitude and latitude
+        def calculate_distance(node1, node2):
+            # Calculate distance between two nodes using Haversine formula
+            lat1, lon1 = self.node_coordinates[node1]
+            lat2, lon2 = self.node_coordinates[node2]
+            R = 6371
+            dlat = math.radians(lat2 - lat1)
+            dlon = math.radians(lon2 - lon1)
+            a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(
+                dlon / 2) ** 2
+            c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+            distance = R * c
+            return distance
 
-    def get_num_nodes(self):
-        return self.num_nodes
-
-    def w(self, node1, node2):
-        for node in self.adj[node1]:
-            if node[0] == node2:
-                return node[1]
-        return float('inf')
-
-    # TODO: Create a function heuristic() -> Dict[int, float] that sets a dictionary of heuristic values for each node
-
-    def heuristic(self):
-        pass
+        # calculate the distance between each node and the goal node
+        for node in self.adj:
+            self.heuristic[node] = calculate_distance(node, goal)
+        return self.heuristic
 
     # Create a function get_heuristic() -> Dict[int, float] that returns the dictionary of heuristic values
     def get_heuristic(self):
