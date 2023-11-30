@@ -50,12 +50,17 @@ def bsp_solution(L, m):
     return result
 
 
-def test_bsp():
+def test_given_bsp_cases():
     L = [2, 4, 6, 7, 10, 14]
     m = 2
-    print(bsp_value(L, m))  # Output: 4
-    print(bsp_solution(L, m))  # Output: [2, 6, 10, 14]
+    try:
+        assert (bsp_value(L, m)) == 4  # Output: 4
+        assert (bsp_solution(L, m)) == [2, 6, 10, 14]  # Output: [2, 6, 10, 14]
+    except AssertionError:
+        print("The function does not return the expected result")
+    else:
+        print("The function returns the expected result")
 
 
 if __name__ == '__main__':
-    test_bsp()
+    test_given_bsp_cases()
