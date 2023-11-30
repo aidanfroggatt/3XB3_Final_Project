@@ -50,8 +50,12 @@ def bsp_solution(L, m):
     return result
 
 
-# Example usage:
-L = [2, 4, 6, 7, 10, 14]
-m = 2
-print(bsp_value(L, m))  # Output: 4
-print(bsp_solution(L, m))  # Output: [2, 6, 10, 14]
+def test_bsp():
+    L = [2, 4, 6, 7, 10, 14]
+    m = 2
+    print(bsp_value(L, m))  # Output: 4
+    print(bsp_solution(L, m))  # Output: [2, 6, 10, 14]
+
+
+if __name__ == '__main__':
+    test_bsp()
