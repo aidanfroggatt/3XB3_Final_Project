@@ -1,4 +1,4 @@
-# 3XB3_Final_Project
+# 3XB3 Final Project
 ## Team Members
 * [Aidan Froggatt](https://aidanfroggatt.github.io/portfolio/)
 * Emina Burnazovic
