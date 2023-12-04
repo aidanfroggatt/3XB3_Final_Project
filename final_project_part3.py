@@ -174,6 +174,7 @@ def experiment_suite_2_plots():
     plt.ylabel('Runtime (seconds)')
     plt.title('Comparison of Dijkstra and A* Runtimes')
     plt.legend()
+    plt.ylim(0, 0.0015)  # Set the y-axis limits
     plt.show()
 
     # Comparing runtimes
@@ -209,6 +210,7 @@ def experiment_suite_2_plots():
     plt.ylabel('Runtime (seconds)')
     plt.title('Comparison of Dijkstra and A* Runtimes (Comparable Runtimes)')
     plt.legend()
+    plt.ylim(0, 0.0015)  # Set the y-axis limits
     plt.show()
 
     # A star better
@@ -218,6 +220,7 @@ def experiment_suite_2_plots():
     plt.ylabel('Runtime (seconds)')
     plt.title('Comparison of Dijkstra and A* Runtimes (A* Better)')
     plt.legend()
+    plt.ylim(0, 0.0015)  # Set the y-axis limits
     plt.show()
 
     # Dijkstra better
@@ -227,6 +230,7 @@ def experiment_suite_2_plots():
     plt.ylabel('Runtime (seconds)')
     plt.title('Comparison of Dijkstra and A* Runtimes (Dijkstra Better)')
     plt.legend()
+    plt.ylim(0, 0.0015)  # Set the y-axis limits
     plt.show()
 
 
