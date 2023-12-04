@@ -145,6 +145,7 @@ class Graph(ABC):
     def get_num_nodes(self):
         pass
 
+
 # Create an implementation of Graph for each of the following graphs:
 #   - WeightedGraph
 class WeightedGraph(Graph):

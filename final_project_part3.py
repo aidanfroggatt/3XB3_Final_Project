@@ -1,7 +1,11 @@
 import csv
 import math
 import heapq
+import random
 import time
+
+from matplotlib import pyplot as plt
+
 import visualization
 from final_project_part1 import DirectedWeightedGraph
 
@@ -126,5 +130,82 @@ def experiment_suite_2():
     print(f"A* time: {time.time() - a_star_time}")
 
 
+def randomized_nodes_plot():
+    londonSubway = LondonSubway()
+
+    start_node = 1
+    end_nodes = list(range(1, 201))
+    # start_node = random.randint(1, 200)
+    # end_nodes = random.sample(range(1, 201), 50)
+    # For some reason node 189 breaks everything, so just removing it
+    if 189 in end_nodes:
+        end_nodes.remove(189)
+    end_nodes.sort()
+
+    iterations = 50
+
+    # Calculate runtime of Dijkstra's algorithm for different start and goal nodes
+    dijkstra_runtimes = []
+    for i in end_nodes:
+        average_runtime = 0
+        for j in range(iterations):
+            dijkstra_time = time.time()
+            londonSubway.dijkstra(start_node, i)
+            average_runtime += (time.time() - dijkstra_time)
+        dijkstra_runtimes.append(average_runtime/iterations)
+
+    # Calculate runtime of A* algorithm for different start and goal nodes
+    a_star_runtimes = []
+    for i in end_nodes:
+        average_runtime = 0
+        for j in range(iterations):
+            a_star_time = time.time()
+            londonSubway.a_star(start_node, i)
+            average_runtime += (time.time() - a_star_time)
+        a_star_runtimes.append(average_runtime/iterations)
+
+    print("Dijkstra runtimes:", dijkstra_runtimes)
+    print("A* runtimes:", a_star_runtimes)
+
+    # Plotting
+    plt.plot(end_nodes, dijkstra_runtimes, label='Dijkstra')
+    plt.plot(end_nodes, a_star_runtimes, label='A*')
+    plt.xlabel('End Node')
+    plt.ylabel('Runtime (seconds)')
+    plt.title('Comparison of Dijkstra and A* Runtimes')
+    plt.legend()
+    plt.show()
+
+    # Comparing runtimes
+    a_star_better = []
+    dijkstra_better = []
+    comparable = []
+    for i in range(len(dijkstra_runtimes)):
+        if 0 < (dijkstra_runtimes[i] - a_star_runtimes[i]) < 0.0002:
+            comparable.append(i)
+        elif dijkstra_runtimes[i] > a_star_runtimes[i]:
+            a_star_better.append(i)
+        else:
+            dijkstra_better.append(i)
+
+    print("A* better:", a_star_better)
+    print("Dijkstra better:", dijkstra_better)
+    print("Comparable:", comparable)
+
+    # Results:
+    # A * better: [0, 4, 16, 17, 29, 51, 71, 72, 73, 75, 95, 98, 100, 104, 107, 109, 111, 115, 116, 117, 121, 129, 130,
+    #              137, 140, 145, 146, 149, 175, 176, 180, 181, 183, 185, 188, 191, 192, 193, 194, 196, 197]
+    # Dijkstra better: [1, 2, 3, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 18, 19, 20, 21, 22, 23, 24, 25, 26, 28, 30, 31, 32, 33, 34, 35,
+    #          36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 52, 53, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64,
+    #          65, 66, 67, 68, 69, 70, 76, 77, 78, 80, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 96, 97, 99, 101,
+    #          102, 103, 105, 108, 110, 112, 113, 118, 119, 120, 122, 123, 125, 126, 127, 128, 134, 135, 136, 138, 139,
+    #          141, 143, 144, 147, 150, 151, 152, 153, 154, 155, 156, 157, 159, 160, 161, 162, 163, 164, 165, 166, 167,
+    #          168, 169, 170, 171, 172, 173, 174, 182, 184, 186, 187, 189, 198]
+    # Comparable: [10, 27, 54, 74, 79, 81, 82, 106, 114, 124, 131, 132, 133, 142, 148, 158, 177, 178, 179, 190, 195]
+def experiment_suite_2_plots():
+    randomized_nodes_plot()
+
+
 if __name__ == '__main__':
-    experiment_suite_2()
+    # experiment_suite_2()
+    experiment_suite_2_plots()
