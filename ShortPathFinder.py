@@ -138,17 +138,12 @@ class Graph(ABC):
         pass
 
     @abstractmethod
-    def add_edge(self, start, end, w):
+    def add_edge(self, start, end):
         pass
 
     @abstractmethod
     def get_num_nodes(self):
         pass
-
-    @abstractmethod
-    def w(self, node):
-        pass
-
 
 # Create an implementation of Graph for each of the following graphs:
 #   - WeightedGraph
@@ -164,17 +159,11 @@ class WeightedGraph(Graph):
         self.adj[node] = []
         self.num_nodes += 1
 
-    def add_edge(self, start, end, w):
-        self.adj[start].append((end, w))
+    def add_edge(self, start, end):
+        self.adj[start].append(end)
 
     def get_num_nodes(self):
         return self.num_nodes
-
-    def w(self, node1, node2):
-        for node in self.adj[node1]:
-            if node[0] == node2:
-                return node[1]
-        return float('inf')
 
 
 # Create an extension of WeightedGraph for each of the following graphs:

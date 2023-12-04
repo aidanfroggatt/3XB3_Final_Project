@@ -195,7 +195,7 @@ def experiment_graph_size():
     plt.xlabel('Graph Size')
     plt.ylabel('Execution Time (s)')
     plt.legend()
-    plt.title('Experiment 1: Execution Time vs.Graph Size')
+    plt.title('Experiment 1: Execution Time vs. Graph Size')
     plt.show()
 
 
