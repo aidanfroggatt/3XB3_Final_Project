@@ -187,7 +187,7 @@ def experiment_suite_2_plots():
     comparable_d_runtimes = []
     comparable_end_nodes = []
     for i in range(len(dijkstra_runtimes)):
-        if 0 < (dijkstra_runtimes[i] - a_star_runtimes[i]) < 0.0002:
+        if 0 < (dijkstra_runtimes[i] - a_star_runtimes[i]) < 0.0001:
             comparable_a_runtimes.append(a_star_runtimes[i])
             comparable_d_runtimes.append(dijkstra_runtimes[i])
             comparable_end_nodes.append(end_nodes[i])

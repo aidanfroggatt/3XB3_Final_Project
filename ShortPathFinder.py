@@ -166,6 +166,9 @@ class WeightedGraph(Graph):
     def get_num_nodes(self):
         return self.num_nodes
 
+    def w(self, node1, node2):
+        return 1
+
 
 # Create an extension of WeightedGraph for each of the following graphs:
 #   - Heuristic
