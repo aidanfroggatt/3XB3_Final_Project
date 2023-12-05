@@ -14,7 +14,7 @@ related problems including the London Underground.
 ### Description
 This part of the project focuses on implementing the shortest path algorithm approximations for Dijkstra and Bellman Ford. There is also a mystery algorithm.
 ### Files
-* `final_project_part1.py` - This file contains the code for the shortest path algorithms.
+* `final_project_part1.py` - This file contains the code for the shortest path algorithms and approximations.
 
 ## Part 2
 ### Description
@@ -24,14 +24,14 @@ This part of the project focuses on implementing the a star shortest path algori
 
 ## Part 3
 ### Description
-This part of the project focuses on implementing the London Underground graph and the shortest path algorithms. It also includes a visualization of the London Underground.
+This part of the project focuses on implementing the London Underground graph and the shortest path algorithms. It also includes an extra visualization of the London Underground.
 ### Files
 * `final_project_part3.py` - This file contains the code for the london underground graph construction, algorithms, and testing.
-* `visualization.py` - This file contains the code for the visualization of the London Underground.
+* `visualization.py` - Not needed for project. This file contains code for visualization of the London Underground.
 
 ## Part 4
 ### Description
 This part contains a refactored collection of code from the previous parts as well as the broken station problem.
 ### Files
-* `ShortPathFinder.py` - This file contains all the refactored code for part 4.
+* `ShortPathFinder.py` - This file contains all the refactored code according to the provided UML diagram for part 4.
 * `final_project_part4.py` - This file contains the code for the broken station problem.
